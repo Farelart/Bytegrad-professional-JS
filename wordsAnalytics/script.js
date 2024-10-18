@@ -35,6 +35,14 @@ function count () {
     numberOfFacebookWordsLeft.textContent = numberOfFacebookWordsLeftAsNumber;
 }
 
+/* setTimeout(() => {
+    console.log('hi');
+}, 2000);
+
+setInterval(() => {
+    console.log("doodooshark")
+}, 3000); */
+
 
 
 
