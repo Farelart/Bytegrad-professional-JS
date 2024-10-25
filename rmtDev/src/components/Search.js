@@ -1,62 +1,77 @@
-import { searchInputEl, searchFormEl, jobListSearchEl, numberEl, BASE_API_URL } from "../common.js";
+import {
+  searchInputEl,
+  searchFormEl,
+  jobListSearchEl,
+  numberEl,
+  sortingBtnRecentEl,
+  sortingBtnRelevantEl,
+  BASE_API_URL,
+  getData,
+  state,
+} from "../common.js";
 import renderError from "./Error.js";
 import renderSpinner from "./Spinner.js";
 import renderJobList from "./JobList.js";
+import renderPaginationButtons from "./Pagination.js";
 
 const submitHandler = async (event) => {
-    // prevent default behavior
-    event.preventDefault();
+  // prevent default behavior
+  event.preventDefault();
 
-    // get search text
-    const searchText = searchInputEl.value;
+  // get search text
+  const searchText = searchInputEl.value;
 
-    // validation (regular expression example)
-    const forbiddenPattern = /[0-9]/;
-    const patternMatch = forbiddenPattern.test(searchText);
-    if (patternMatch) {
-        renderError('Your search may not contain numbers');
-        return;
-    }
+  // validation (regular expression example)
+  const forbiddenPattern = /[0-9]/;
+  const patternMatch = forbiddenPattern.test(searchText);
+  if (patternMatch) {
+    renderError("Your search may not contain numbers");
+    return;
+  }
 
-    // blur input
-    searchInputEl.blur();
+  // blur input
+  searchInputEl.blur();
 
-    // remove previous job items
-    jobListSearchEl.innerHTML = '';
+  // remove previous job items
+  jobListSearchEl.innerHTML = "";
 
-    // render spinner
-    renderSpinner('search');
+  // reset sorting buttons
+  sortingBtnRecentEl.classList.remove("sorting__button--active");
+  sortingBtnRelevantEl.classList.add("sorting__button--active");
 
-    // fetch search results
-    
-    try {
-        const response = await fetch(`${BASE_API_URL}/jobs?search=${searchText}`);
-        const data = await response.json();
+  // render spinner
+  renderSpinner("search");
 
-        if(!response.ok) {
-            throw new Error (data.description);
-        }
+  // fetch search results
+  try {
+    const data = await getData(`${BASE_API_URL}/jobs?search=${searchText}`);
 
-        // extract job items
-        const { jobItems } = data;
+    // extract job items
+    const { jobItems } = data;
 
-        console.log(jobItems);
+    // update state
+    state.searchJobItems = jobItems;
+    state.currentPage = 1;
 
-        // remove spinner
-        renderSpinner('search');
+    console.log(jobItems);
 
-        // render number of results
-        numberEl.textContent = jobItems.length;
+    // remove spinner
+    renderSpinner("search");
 
-        // render job items in the search job list
-        renderJobList(jobItems);
-    } catch (error) {
-        renderSpinner('search');
-        renderError(error.message);
-    }
+    // render number of results
+    numberEl.textContent = jobItems.length;
 
+    // reset pagination buttons
+    renderPaginationButtons();
 
-    /* fetch(`${BASE_API_URL}/jobs?search=${searchText}`)
+    // render job items in the search job list
+    renderJobList();
+  } catch (error) {
+    renderSpinner("search");
+    renderError(error.message);
+  }
+
+  /* fetch(`${BASE_API_URL}/jobs?search=${searchText}`)
         .then(response => {
             if(!response.ok) {
                 throw new Error ('Resource issue (e.g. resource doesn\'t exist) or server issue');
@@ -82,6 +97,6 @@ const submitHandler = async (event) => {
             renderSpinner('search');
             renderError(error.message);
         }); */
-}
+};
 
-searchFormEl.addEventListener('submit', submitHandler);
+searchFormEl.addEventListener("submit", submitHandler);
