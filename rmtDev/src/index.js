@@ -6,3 +6,4 @@ import "./components/JobDetails.js";
 import "./components/Sorting.js";
 import "./components/Pagination.js";
 import "./components/Bookmarks.js";
+import "./index.css";
